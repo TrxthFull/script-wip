@@ -23,6 +23,7 @@ local function createGUI()
     WindowFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
     WindowFrame.BorderSizePixel = 2
     WindowFrame.BorderColor3 = Color3.fromRGB(0, 0, 0)
+    WindowFrame.Visible = false
 
     local UItop = Instance.new("TextLabel")
     UItop.Parent = WindowFrame
