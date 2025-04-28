@@ -223,6 +223,104 @@ local function createGUI()
 	end)
 
 
+
+	local Players = game:GetService("Players")
+
+	local nametagsEnabled = false
+	local characterConnections = {}
+
+	-- Function to create nametag
+	local function addNametag(player)
+		local character = player.Character or player.CharacterAdded:Wait()
+		local head = character:WaitForChild("Head", 5)
+
+		if head and not head:FindFirstChild("NametagBillboard") then
+			local billboard = Instance.new("BillboardGui")
+			billboard.Name = "NametagBillboard"
+			billboard.Adornee = head
+			billboard.Size = UDim2.new(0, 200, 0, 50) -- Fixed size
+			billboard.StudsOffset = Vector3.new(0, 2, 0)
+			billboard.AlwaysOnTop = true
+			billboard.LightInfluence = 0
+			billboard.MaxDistance = 500 -- Optional: limit range
+			billboard.Parent = head
+
+			local textLabel = Instance.new("TextLabel")
+			textLabel.Size = UDim2.new(1, 0, 1, 0)
+			textLabel.BackgroundTransparency = 1
+			textLabel.Text = player.Name
+			textLabel.TextScaled = true
+			textLabel.TextColor3 = Color3.new(1, 1, 1)
+			textLabel.Font = Enum.Font.GothamBold
+			textLabel.Parent = billboard
+		end
+	end
+
+	-- Function to remove nametag
+	local function removeNametag(player)
+		if player.Character then
+			local head = player.Character:FindFirstChild("Head")
+			if head and head:FindFirstChild("NametagBillboard") then
+				head.NametagBillboard:Destroy()
+			end
+		end
+	end
+
+	-- Enable nametags
+	local function enableNametags()
+		for _, player in ipairs(Players:GetPlayers()) do
+			if player.Character then
+				addNametag(player)
+			end
+			local conn = player.CharacterAdded:Connect(function()
+				addNametag(player)
+			end)
+			characterConnections[player] = conn
+		end
+
+		Players.PlayerAdded:Connect(function(player)
+			local conn = player.CharacterAdded:Connect(function()
+				addNametag(player)
+			end)
+			characterConnections[player] = conn
+		end)
+	end
+
+	-- Disable nametags
+	local function disableNametags()
+		for _, player in ipairs(Players:GetPlayers()) do
+			removeNametag(player)
+			if characterConnections[player] then
+				characterConnections[player]:Disconnect()
+				characterConnections[player] = nil
+			end
+		end
+	end
+
+	-- Create Button
+	local NametagButton = Instance.new("TextButton")
+	NametagButton.Parent = WindowFrame -- << replace with your frame
+	NametagButton.Size = UDim2.new(0, 249, 0, 30)
+	NametagButton.Position = UDim2.new(0, 25, 0, 170)
+	NametagButton.BackgroundColor3 = Color3.fromRGB(68, 142, 228)
+	NametagButton.Text = "Enable Nametag ESP"
+	NametagButton.TextColor3 = Color3.new(0, 0, 0)
+	NametagButton.Font = Enum.Font.SourceSans
+	NametagButton.TextSize = 18
+
+	NametagButton.MouseButton1Click:Connect(function()
+		nametagsEnabled = not nametagsEnabled
+
+		if nametagsEnabled then
+			enableNametags()
+			NametagButton.Text = "Disable Nametag ESP"
+		else
+			disableNametags()
+			NametagButton.Text = "Enable Nametag ESP"
+		end
+	end)
+
+
     -- Minimize Button
     local MinimizeButton = Instance.new("TextButton")
     MinimizeButton.Parent = WindowFrame
@@ -238,8 +336,8 @@ local function createGUI()
     local minimizeButton = Instance.new("TextButton")
     minimizeButton.Parent = ScreenGui
     minimizeButton.Size = UDim2.new(0, 100, 0, 30)
-    minimizeButton.Position = UDim2.new(0, 0, 0, 0)  -- Place it at the top-left of the screen
-    minimizeButton.Text = "Minimize"
+    minimizeButton.Position = UDim2.new(0, 717, 0, -30)  -- Place it at the top-left of the screen
+    minimizeButton.Text = "Admin GUI"
     minimizeButton.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
     minimizeButton.TextColor3 = Color3.fromRGB(0, 0, 0)
     minimizeButton.Font = Enum.Font.SourceSans
@@ -251,6 +349,81 @@ local function createGUI()
     	else
         	WindowFrame.Visible = true  -- Show the window again
     	end
+	end)
+
+	local SliderFrame = Instance.new("Frame")
+	SliderFrame.Parent = WindowFrame
+	SliderFrame.Size = UDim2.new(0, 250, 0, 30)
+	SliderFrame.Position = UDim2.new(0, 25, 0, 400)
+	SliderFrame.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+	SliderFrame.BorderSizePixel = 1
+	SliderFrame.BorderColor3 = Color3.fromRGB(0, 0, 0)
+
+	local SliderTrack = Instance.new("Frame")
+	SliderTrack.Parent = SliderFrame
+	SliderTrack.Size = UDim2.new(1, -20, 0, 5)
+	SliderTrack.Position = UDim2.new(0, 10, 0, 12)
+	SliderTrack.BackgroundColor3 = Color3.fromRGB(200, 200, 200)
+
+	local SliderHandle = Instance.new("TextButton")
+	SliderHandle.Parent = SliderFrame
+	SliderHandle.Size = UDim2.new(0, 10, 0, 10)
+	SliderHandle.Position = UDim2.new(0, 10, 0, 8)
+	SliderHandle.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+	SliderHandle.Text = ""
+	SliderHandle.TextColor3 = Color3.fromRGB(255, 255, 255)
+
+	local SpeedDisplay = Instance.new("TextLabel")
+	SpeedDisplay.Parent = WindowFrame
+	SpeedDisplay.Size = UDim2.new(0, 250, 0, 30)
+	SpeedDisplay.Position = UDim2.new(0, 25, 0, 425)
+	SpeedDisplay.Text = "WalkSpeed: 16"
+	SpeedDisplay.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+	SpeedDisplay.TextColor3 = Color3.fromRGB(255, 255, 255)
+	SpeedDisplay.Font = Enum.Font.SourceSans
+	SpeedDisplay.TextSize = 20
+	SpeedDisplay.TextXAlignment = Enum.TextXAlignment.Center
+
+	-- Slider Logic
+	local function updateSpeed(value)
+		local newSpeed = math.floor(value)
+		local humanoid = game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
+		if humanoid then
+			humanoid.WalkSpeed = newSpeed
+		end
+		SpeedDisplay.Text = "WalkSpeed: " .. newSpeed
+	end
+
+	-- Dragging logic for slider
+	local dragging = false
+
+	SliderHandle.InputBegan:Connect(function(input)
+		if input.UserInputType == Enum.UserInputType.MouseButton1 then
+			dragging = true
+		end
+	end)
+
+	SliderHandle.InputEnded:Connect(function(input)
+		if input.UserInputType == Enum.UserInputType.MouseButton1 then
+			dragging = false
+		end
+	end)
+
+	game:GetService("UserInputService").InputChanged:Connect(function(input)
+		if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+			local mousePos = input.Position.X
+			local sliderPos = SliderFrame.AbsolutePosition.X
+			local sliderWidth = SliderFrame.AbsoluteSize.X - 20
+			local newPos = math.clamp(mousePos - sliderPos, 0, sliderWidth)
+
+			SliderHandle.Position = UDim2.new(0, newPos, 0, 8)
+
+			-- Max WalkSpeed 100 (you can change this)
+			local minSpeed = 16
+			local maxSpeed = 100
+			local value = minSpeed + ((newPos / sliderWidth) * (maxSpeed - minSpeed))
+			updateSpeed(value)
+		end
 	end)
 
 
@@ -314,7 +487,7 @@ local UserInputService = game:GetService("UserInputService")
     local InfiniteJumpButton = Instance.new("TextButton")
     InfiniteJumpButton.Parent = WindowFrame
     InfiniteJumpButton.Size = UDim2.new(0, 249, 0, 30)
-    InfiniteJumpButton.Position = UDim2.new(0, 25, 0, 150)
+    InfiniteJumpButton.Position = UDim2.new(0, 25, 0, 130)
     InfiniteJumpButton.Text = "Infinite Jump Off"
     InfiniteJumpButton.BackgroundColor3 = Color3.fromRGB(68, 142, 228)
     InfiniteJumpButton.TextColor3 = Color3.fromRGB(0, 0, 0)
