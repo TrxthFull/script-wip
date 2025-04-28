@@ -3,6 +3,10 @@ local speed = 1  -- Updated speed
 local infiniteJumpEnabled = false
 local jumping = false
 
+
+
+
+
 -- Function to create and initialize the GUI
 local function createGUI()
     -- Check if a GUI already exists and delete it
@@ -25,6 +29,14 @@ local function createGUI()
     WindowFrame.BorderColor3 = Color3.fromRGB(0, 0, 0)
 	WindowFrame.Visible = false
 
+
+
+	local gradient = Instance.new("UIGradient")
+	gradient.Parent = WindowFrame
+	gradient.Color = ColorSequence.new(Color3.fromRGB(0, 0, 255), Color3.fromRGB(0, 0, 0))
+	gradient.Rotation = 45
+
+
     local UItop = Instance.new("TextLabel")
     UItop.Parent = WindowFrame
     UItop.Size = UDim2.new(0, 300, 0, 30)
@@ -35,6 +47,36 @@ local function createGUI()
     UItop.Font = Enum.Font.SourceSans
     UItop.TextSize = 20
     UItop.TextXAlignment = Enum.TextXAlignment.Center
+
+
+
+
+
+
+
+	local serverHopButton = Instance.new("TextButton")
+	serverHopButton.Size = UDim2.new(0, 125, 0, 30)
+	serverHopButton.Position = UDim2.new(0, 150, 0, 360)
+	serverHopButton.Text = "Server Hop"
+	serverHopButton.Parent = WindowFrame
+
+	serverHopButton.MouseButton1Click:Connect(function()
+    	local placeId = game.PlaceId
+    	local jobId = game.JobId
+    
+    	game:GetService("TeleportService"):TeleportToPlaceInstance(placeId, jobId, game.Players.LocalPlayer)
+	end)
+
+
+	local rejoinButton = Instance.new("TextButton")
+	rejoinButton.Size = UDim2.new(0, 125, 0, 30)
+	rejoinButton.Position = UDim2.new(0, 25, 0, 360)
+	rejoinButton.Text = "Rejoin"
+	rejoinButton.Parent = WindowFrame
+
+	rejoinButton.MouseButton1Click:Connect(function()
+    	game:GetService("TeleportService"):TeleportToPlaceInstance(game.PlaceId, game.JobId)
+	end)
 
     -- Speed Display
     local SpeedLabel = Instance.new("TextLabel")
@@ -204,8 +246,8 @@ local function createGUI()
 
 	local noclipButton = Instance.new("TextButton")
 	noclipButton.Parent = WindowFrame
-	noclipButton.Size = UDim2.new(0, 249, 0, 30)
-	noclipButton.Position = UDim2.new(0, 51, 0, 60)
+	noclipButton.Size = UDim2.new(0, 250, 0, 30)
+	noclipButton.Position = UDim2.new(0, 50, 0, 60)
 	noclipButton.Text = "Noclip Off"
 	noclipButton.BackgroundColor3 = Color3.fromRGB(255, 255, 0)
 	noclipButton.TextColor3 = Color3.fromRGB(0, 0, 0)
@@ -301,10 +343,10 @@ local function createGUI()
 	-- Create Button
 	local NametagButton = Instance.new("TextButton")
 	NametagButton.Parent = WindowFrame -- << replace with your frame
-	NametagButton.Size = UDim2.new(0, 249, 0, 30)
+	NametagButton.Size = UDim2.new(0, 125, 0, 30)
 	NametagButton.Position = UDim2.new(0, 25, 0, 170)
 	NametagButton.BackgroundColor3 = Color3.fromRGB(68, 142, 228)
-	NametagButton.Text = "Enable Nametag ESP"
+	NametagButton.Text = "Toggle Nametag ESP"
 	NametagButton.TextColor3 = Color3.new(0, 0, 0)
 	NametagButton.Font = Enum.Font.SourceSans
 	NametagButton.TextSize = 18
@@ -314,10 +356,10 @@ local function createGUI()
 
 		if nametagsEnabled then
 			enableNametags()
-			NametagButton.Text = "Disable Nametag ESP"
+			NametagButton.Text = "Toggle Nametag ESP"
 		else
 			disableNametags()
-			NametagButton.Text = "Enable Nametag ESP"
+			NametagButton.Text = "Toggle Nametag ESP"
 		end
 	end)
 
@@ -487,7 +529,7 @@ local UserInputService = game:GetService("UserInputService")
     -- Infinite Jump Toggle Button
     local InfiniteJumpButton = Instance.new("TextButton")
     InfiniteJumpButton.Parent = WindowFrame
-    InfiniteJumpButton.Size = UDim2.new(0, 249, 0, 30)
+    InfiniteJumpButton.Size = UDim2.new(0, 125, 0, 30)
     InfiniteJumpButton.Position = UDim2.new(0, 25, 0, 130)
     InfiniteJumpButton.Text = "Infinite Jump Off"
     InfiniteJumpButton.BackgroundColor3 = Color3.fromRGB(68, 142, 228)
