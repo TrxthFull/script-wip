@@ -1,0 +1,379 @@
+local player = game.Players.LocalPlayer
+local speed = 1  -- Updated speed
+local infiniteJumpEnabled = false
+local jumping = false
+
+-- Function to create and initialize the GUI
+local function createGUI()
+    -- Check if a GUI already exists and delete it
+    if player.PlayerGui:FindFirstChild("ScreenGui") then
+        player.PlayerGui.ScreenGui:Destroy()
+    end
+
+    -- Create new GUI
+    local ScreenGui = Instance.new("ScreenGui")
+    ScreenGui.Name = "ScreenGui"  -- Ensure it has a name for easier detection
+    ScreenGui.Parent = player.PlayerGui
+    ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+
+    local WindowFrame = Instance.new("Frame")
+    WindowFrame.Parent = ScreenGui
+    WindowFrame.Size = UDim2.new(0, 300, 0, 500)
+    WindowFrame.Position = UDim2.new(0, 50, 0, 50)
+    WindowFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+    WindowFrame.BorderSizePixel = 2
+    WindowFrame.BorderColor3 = Color3.fromRGB(0, 0, 0)
+
+    local UItop = Instance.new("TextLabel")
+    UItop.Parent = WindowFrame
+    UItop.Size = UDim2.new(0, 300, 0, 30)
+    UItop.Position = UDim2.new(0, 0, 0, 0)
+    UItop.Text = "Trxths' IDK GUI"
+    UItop.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+    UItop.TextColor3 = Color3.fromRGB(255, 255, 255)
+    UItop.Font = Enum.Font.SourceSans
+    UItop.TextSize = 20
+    UItop.TextXAlignment = Enum.TextXAlignment.Center
+
+    -- Speed Display
+    local SpeedLabel = Instance.new("TextLabel")
+    SpeedLabel.Parent = WindowFrame
+    SpeedLabel.Size = UDim2.new(0, 300, 0, 30)
+    SpeedLabel.Position = UDim2.new(0, 0, 0, 90)
+    SpeedLabel.Text = "Fly Speed: " .. speed
+    SpeedLabel.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+    SpeedLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+    SpeedLabel.Font = Enum.Font.SourceSans
+    SpeedLabel.TextSize = 20
+    SpeedLabel.TextXAlignment = Enum.TextXAlignment.Center
+
+
+    -- Speed Controls (Buttons + / -)
+    local IncreaseSpeedButton = Instance.new("TextButton")
+    IncreaseSpeedButton.Parent = WindowFrame
+    IncreaseSpeedButton.Size = UDim2.new(0, 50, 0, 30)
+    IncreaseSpeedButton.Position = UDim2.new(0, 0, 0, 30)
+    IncreaseSpeedButton.Text = "+"
+    IncreaseSpeedButton.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
+    IncreaseSpeedButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+    IncreaseSpeedButton.Font = Enum.Font.SourceSans
+    IncreaseSpeedButton.TextSize = 20
+
+    local DecreaseSpeedButton = Instance.new("TextButton")
+    DecreaseSpeedButton.Parent = WindowFrame
+    DecreaseSpeedButton.Size = UDim2.new(0, 50, 0, 30)
+    DecreaseSpeedButton.Position = UDim2.new(0, 0, 0, 60)
+    DecreaseSpeedButton.Text = "-"
+    DecreaseSpeedButton.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+    DecreaseSpeedButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+    DecreaseSpeedButton.Font = Enum.Font.SourceSans
+    DecreaseSpeedButton.TextSize = 20
+
+    IncreaseSpeedButton.MouseButton1Click:Connect(function()
+        speed = speed + 1
+        SpeedLabel.Text = "Speed: " .. speed
+    end)
+
+    DecreaseSpeedButton.MouseButton1Click:Connect(function()
+        if speed > 1 then
+            speed = speed - 1
+            SpeedLabel.Text = "Speed: " .. speed
+        end
+    end)
+
+    -- Fly functionality
+    local FLYING = false
+    local CONTROL = {F = 0, B = 0, L = 0, R = 0, Q = 0, E = 0}
+    local fly_velocity, bodygyro
+    local runservice = game:GetService("RunService")
+    local IYMouse = player:GetMouse()
+
+    local function getRoot(char)
+        return char:FindFirstChild("HumanoidRootPart") or char:FindFirstChild("Torso")
+    end
+
+    local function startFlying()
+        if FLYING then return end
+        FLYING = true
+        local T = getRoot(player.Character)
+
+        fly_velocity = Instance.new("BodyVelocity")
+        fly_velocity.MaxForce = Vector3.new(9e9, 9e9, 9e9)
+        fly_velocity.Velocity = Vector3.zero
+        fly_velocity.P = 1250
+        fly_velocity.Parent = T
+
+        bodygyro = Instance.new("BodyGyro")
+        bodygyro.MaxTorque = Vector3.new(9e9, 9e9, 9e9)
+        bodygyro.P = 300000
+        bodygyro.CFrame = workspace.CurrentCamera.CFrame
+        bodygyro.Parent = T
+
+        runservice.Heartbeat:Connect(function()
+            if FLYING then
+                local camera = workspace.CurrentCamera
+                local forward = camera.CFrame.LookVector * (CONTROL.F + CONTROL.B)
+                local right = camera.CFrame.RightVector * (CONTROL.L + CONTROL.R)
+                local up = Vector3.new(0, CONTROL.Q + CONTROL.E, 0)
+                local moveDirection = forward + right + up
+
+                fly_velocity.Velocity = moveDirection * speed * 5
+                bodygyro.CFrame = CFrame.new(T.Position, T.Position + camera.CFrame.LookVector)
+            else
+                fly_velocity.Velocity = Vector3.zero
+            end
+        end)
+    end
+
+    local function stopFlying()
+        FLYING = false
+        if fly_velocity then
+            fly_velocity:Destroy()
+            fly_velocity = nil
+        end
+        if bodygyro then
+            bodygyro:Destroy()
+            bodygyro = nil
+        end
+    end
+
+    -- Fly Button
+    local FlyButton = Instance.new("TextButton")
+    FlyButton.Parent = WindowFrame
+    FlyButton.Size = UDim2.new(0, 249, 0, 30)
+    FlyButton.Position = UDim2.new(0, 51, 0, 30)
+    FlyButton.Text = "Fly Off"
+    FlyButton.BackgroundColor3 = Color3.fromRGB(68, 142, 228)
+    FlyButton.TextColor3 = Color3.fromRGB(0, 0, 0)
+    FlyButton.Font = Enum.Font.SourceSans
+    FlyButton.TextSize = 18
+
+    FlyButton.MouseButton1Click:Connect(function()
+        if FLYING then
+            stopFlying()
+            FlyButton.Text = "Fly Off"
+        else
+            startFlying()
+            FlyButton.Text = "Fly On"
+        end
+    end)
+
+	local RunService = game:GetService("RunService")
+	local Players = game:GetService("Players")
+
+	local noclipEnabled = false
+	local noclipConnection
+
+	local function enableNoclip()
+	    if noclipConnection then return end
+	    noclipConnection = RunService.Stepped:Connect(function(_, dt)
+	        local character = Players.LocalPlayer.Character
+    	    if character then
+                -- Check each part in the character and disable collision
+            	for _, part in pairs(character:GetDescendants()) do
+            	    if part:IsA("BasePart") then
+                	    -- Disable collision on all parts (to simulate noclip)
+                    	part.CanCollide = false
+                	end
+            	end
+        	end
+    	end)
+	end
+
+	local function disableNoclip()
+    	if noclipConnection then
+        	noclipConnection:Disconnect()
+        	noclipConnection = nil
+    	end
+
+    	local character = Players.LocalPlayer.Character
+    	if character then
+        	for _, part in pairs(character:GetDescendants()) do
+            	if part:IsA("BasePart") then
+                	part.CanCollide = true
+            	end
+        	end
+        
+        	local humanoid = character:FindFirstChild("Humanoid")
+        	if humanoid then
+            	humanoid.PlatformStand = false  -- Disable platform standing (can cause jittering when noclip is off)
+        	end
+    	end
+	end
+
+	local noclipButton = Instance.new("TextButton")
+	noclipButton.Parent = WindowFrame
+	noclipButton.Size = UDim2.new(0, 249, 0, 30)
+	noclipButton.Position = UDim2.new(0, 51, 0, 60)
+	noclipButton.Text = "Noclip Off"
+	noclipButton.BackgroundColor3 = Color3.fromRGB(255, 255, 0)
+	noclipButton.TextColor3 = Color3.fromRGB(0, 0, 0)
+	noclipButton.Font = Enum.Font.SourceSans
+	noclipButton.TextSize = 20
+
+	noclipButton.MouseButton1Click:Connect(function()
+    	if noclipEnabled then
+        	disableNoclip()
+        	noclipButton.Text = "Noclip Off"
+    	else
+        	enableNoclip()
+        	noclipButton.Text = "Noclip On"
+    	end
+    	noclipEnabled = not noclipEnabled
+	end)
+
+
+    -- Minimize Button
+    local MinimizeButton = Instance.new("TextButton")
+    MinimizeButton.Parent = WindowFrame
+    MinimizeButton.Size = UDim2.new(0, 30, 0, 30)
+    MinimizeButton.Position = UDim2.new(0, 270, 0, 0)
+    MinimizeButton.Text = "_"
+    MinimizeButton.BackgroundColor3 = Color3.fromRGB(255, 255, 0)
+    MinimizeButton.TextColor3 = Color3.fromRGB(0, 0, 0)
+    MinimizeButton.Font = Enum.Font.SourceSans
+    MinimizeButton.TextSize = 20
+
+    -- Minimize Logic
+    local minimizeButton = Instance.new("TextButton")
+    minimizeButton.Parent = ScreenGui
+    minimizeButton.Size = UDim2.new(0, 100, 0, 30)
+    minimizeButton.Position = UDim2.new(0, 0, 0, 0)  -- Place it at the top-left of the screen
+    minimizeButton.Text = "Minimize"
+    minimizeButton.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
+    minimizeButton.TextColor3 = Color3.fromRGB(0, 0, 0)
+    minimizeButton.Font = Enum.Font.SourceSans
+    minimizeButton.TextSize = 20
+
+	minimizeButton.MouseButton1Click:Connect(function()
+    	if WindowFrame.Visible then
+        	WindowFrame.Visible = false  -- Hide the window
+    	else
+        	WindowFrame.Visible = true  -- Show the window again
+    	end
+	end)
+
+
+
+	local CreditsLabel = Instance.new("TextLabel")
+	CreditsLabel.Parent = WindowFrame
+	CreditsLabel.Size = UDim2.new(0, 300, 0, 30)
+	CreditsLabel.Position = UDim2.new(0, 0, 0, 470)
+	CreditsLabel.Text = "UI created by .trxth._ on Discord"
+	CreditsLabel.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+	CreditsLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+	CreditsLabel.Font = Enum.Font.SourceSans
+	CreditsLabel.TextSize = 16
+	CreditsLabel.TextXAlignment = Enum.TextXAlignment.Center
+
+	local KillButton = Instance.new("TextButton")
+	KillButton.Parent = WindowFrame
+	KillButton.Size = UDim2.new(0, 30, 0, 30)
+	KillButton.Position = UDim2.new(0, 270, 0, 0)
+	KillButton.Text = "X"
+	KillButton.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+	KillButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+	KillButton.Font = Enum.Font.SourceSans
+	KillButton.TextSize = 20
+
+	KillButton.MouseButton1Click:Connect(function()
+    	ScreenGui:Destroy()
+	end)
+
+
+local UserInputService = game:GetService("UserInputService")
+    local Players = game:GetService("Players")
+    local LocalPlayer = Players.LocalPlayer
+
+    -- Infinite Jump Function
+    UserInputService.InputBegan:Connect(function(input, gameProcessed)
+        if gameProcessed then return end
+
+        -- Start jumping if Infinite Jump is enabled and Space is pressed
+        if infiniteJumpEnabled and input.KeyCode == Enum.KeyCode.Space and not jumping then
+            jumping = true
+            local character = LocalPlayer.Character
+            if character and character:FindFirstChild("Humanoid") then
+                -- Continuously apply jumping state
+                while infiniteJumpEnabled and jumping do
+                    character.Humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
+                    wait(0.000001)  -- Delay between jumps to simulate continuous jumping
+                end
+            end
+        end
+    end)
+
+    -- Stop jumping when Space is released
+    UserInputService.InputEnded:Connect(function(input)
+        if input.KeyCode == Enum.KeyCode.Space then
+            jumping = false
+        end
+    end)
+
+    -- Infinite Jump Toggle Button
+    local InfiniteJumpButton = Instance.new("TextButton")
+    InfiniteJumpButton.Parent = WindowFrame
+    InfiniteJumpButton.Size = UDim2.new(0, 249, 0, 30)
+    InfiniteJumpButton.Position = UDim2.new(0, 25, 0, 150)
+    InfiniteJumpButton.Text = "Infinite Jump Off"
+    InfiniteJumpButton.BackgroundColor3 = Color3.fromRGB(68, 142, 228)
+    InfiniteJumpButton.TextColor3 = Color3.fromRGB(0, 0, 0)
+    InfiniteJumpButton.Font = Enum.Font.SourceSans
+    InfiniteJumpButton.TextSize = 18
+
+    InfiniteJumpButton.MouseButton1Click:Connect(function()
+        infiniteJumpEnabled = not infiniteJumpEnabled
+        if infiniteJumpEnabled then
+            InfiniteJumpButton.Text = "Infinite Jump On"
+        else
+            InfiniteJumpButton.Text = "Infinite Jump Off"
+        end
+    end)
+
+
+    -- Draggable GUI Code
+    local dragging = false
+    local dragInput, mousePos, framePos
+
+    WindowFrame.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+            dragging = true
+            dragInput = input
+            mousePos = input.Position
+            framePos = WindowFrame.Position
+        end
+    end)
+
+    WindowFrame.InputEnded:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+            dragging = false
+        end
+    end)
+
+    game:GetService("UserInputService").InputChanged:Connect(function(input)
+        if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+            local delta = input.Position - mousePos
+            WindowFrame.Position = UDim2.new(framePos.X.Scale, framePos.X.Offset + delta.X, framePos.Y.Scale, framePos.Y.Offset + delta.Y)
+        end
+    end)
+
+    -- Additional buttons like noclip, kill, etc., can be added here
+
+    -- Input for flying controls
+    IYMouse.KeyDown:Connect(function(KEY)
+        if KEY:lower() == "w" then CONTROL.F = speed end
+        if KEY:lower() == "s" then CONTROL.B = -speed end
+        if KEY:lower() == "a" then CONTROL.L = -speed end
+        if KEY:lower() == "d" then CONTROL.R = speed end
+    end)
+
+    IYMouse.KeyUp:Connect(function(KEY)
+        if KEY:lower() == "w" then CONTROL.F = 0 end
+        if KEY:lower() == "s" then CONTROL.B = 0 end
+        if KEY:lower() == "a" then CONTROL.L = 0 end
+        if KEY:lower() == "d" then CONTROL.R = 0 end
+    end)
+end
+
+-- Call the function to create the GUI
+createGUI()
