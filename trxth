@@ -10,13 +10,13 @@ local jumping = false
 -- Function to create and initialize the GUI
 local function createGUI()
     -- Check if a GUI already exists and delete it
-    if player.PlayerGui:FindFirstChild("ScreenGui") then
-        player.PlayerGui.ScreenGui:Destroy()
+    if player.PlayerGui:FindFirstChild("SkibidiSigma") then
+        player.PlayerGui.SkibidiSigma:Destroy()
     end
 
     -- Create new GUI
     local ScreenGui = Instance.new("ScreenGui")
-    ScreenGui.Name = "ScreenGui"  -- Ensure it has a name for easier detection
+    ScreenGui.Name = "SkibidiSigma"  -- Ensure it has a name for easier detection
     ScreenGui.Parent = player.PlayerGui
     ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 
@@ -29,19 +29,42 @@ local function createGUI()
     WindowFrame.BorderColor3 = Color3.fromRGB(0, 0, 0)
 	WindowFrame.Visible = false
 
+	local UICorner = Instance.new("UICorner")
+	UICorner.CornerRadius = UDim.new(0, 12) -- You can change 12 to any value you want for more or less rounding
+	UICorner.Parent = WindowFrame
 
 
-	local gradient = Instance.new("UIGradient")
-	gradient.Parent = WindowFrame
-	gradient.Color = ColorSequence.new(Color3.fromRGB(0, 0, 255), Color3.fromRGB(0, 0, 0))
-	gradient.Rotation = 45
+
+
+    local gradient = Instance.new("UIGradient")
+    gradient.Parent = WindowFrame
+    gradient.Rotation = -5 -- We'll animate this later
+
+    -- Stronger color blending
+    gradient.Color = ColorSequence.new({
+        ColorSequenceKeypoint.new(0, Color3.fromRGB(0, 0, 255)),    -- Blue at start
+        ColorSequenceKeypoint.new(0.25, Color3.fromRGB(0, 255, 255)), -- Cyan
+        ColorSequenceKeypoint.new(0.5, Color3.fromRGB(0, 255, 0)),   -- Green
+        ColorSequenceKeypoint.new(0.75, Color3.fromRGB(255, 255, 0)), -- Yellow
+        ColorSequenceKeypoint.new(1, Color3.fromRGB(255, 0, 0))     -- Red at end
+    })
+
+    -- Create a loop to animate the Rotation
+    task.spawn(function()
+        while true do
+            for rotation = 0, 360, 1 do
+                gradient.Rotation = rotation
+                task.wait(0.01) -- Speed of rotation (lower = faster)
+            end
+        end
+    end)
 
 
     local UItop = Instance.new("TextLabel")
     UItop.Parent = WindowFrame
     UItop.Size = UDim2.new(0, 300, 0, 30)
     UItop.Position = UDim2.new(0, 0, 0, 0)
-    UItop.Text = "Trxths' IDK GUI"
+    UItop.Text = "Admin GUI"
     UItop.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
     UItop.TextColor3 = Color3.fromRGB(255, 255, 255)
     UItop.Font = Enum.Font.SourceSans
@@ -49,6 +72,28 @@ local function createGUI()
     UItop.TextXAlignment = Enum.TextXAlignment.Center
 
 
+
+
+
+
+	local Players = game:GetService("Players")
+	local player = Players.LocalPlayer
+
+	local resetButton = Instance.new("TextButton")
+	resetButton.Parent = WindowFrame  -- replace WindowFrame with your frame
+	resetButton.Size = UDim2.new(0, 125, 0, 30)
+	resetButton.Position = UDim2.new(0, 25, 0, 210)
+	resetButton.BackgroundColor3 = Color3.fromRGB(68, 142, 228)
+	resetButton.Text = "Reset Character"
+	resetButton.TextColor3 = Color3.new(0, 0, 0)
+	resetButton.Font = Enum.Font.SourceSans
+	resetButton.TextSize = 18
+
+	resetButton.MouseButton1Click:Connect(function()
+		if player.Character and player.Character:FindFirstChild("Humanoid") then
+			player.Character.Humanoid.Health = 0
+		end
+	end)
 
 
 
@@ -68,6 +113,22 @@ local function createGUI()
 	end)
 
 
+	local vcunban = Instance.new("TextButton")
+	vcunban.Size = UDim2.new(0, 125, 0, 30)
+	vcunban.Position = UDim2.new(0, 25, 0, 250)
+	vcunban.BackgroundColor3 = Color3.fromRGB(68, 142, 228)
+	vcunban.Text = "Unban VC"
+	vcunban.Parent = WindowFrame
+	vcunban.TextColor3 = Color3.new(0, 0, 0)
+	vcunban.Font = Enum.Font.SourceSans
+	vcunban.TextSize = 18
+
+	vcunban.MouseButton1Click:Connect(function()
+		game:GetService("VoiceChatService"):joinVoice()	
+	end)
+
+
+
 	local rejoinButton = Instance.new("TextButton")
 	rejoinButton.Size = UDim2.new(0, 125, 0, 30)
 	rejoinButton.Position = UDim2.new(0, 25, 0, 360)
@@ -81,21 +142,20 @@ local function createGUI()
     -- Speed Display
     local SpeedLabel = Instance.new("TextLabel")
     SpeedLabel.Parent = WindowFrame
-    SpeedLabel.Size = UDim2.new(0, 300, 0, 30)
-    SpeedLabel.Position = UDim2.new(0, 0, 0, 90)
+    SpeedLabel.Size = UDim2.new(0, 125, 0, 20)
+    SpeedLabel.Position = UDim2.new(0, 25, 0, 100)
     SpeedLabel.Text = "Fly Speed: " .. speed
     SpeedLabel.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
     SpeedLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
     SpeedLabel.Font = Enum.Font.SourceSans
-    SpeedLabel.TextSize = 20
+    SpeedLabel.TextSize = 18
     SpeedLabel.TextXAlignment = Enum.TextXAlignment.Center
-
 
     -- Speed Controls (Buttons + / -)
     local IncreaseSpeedButton = Instance.new("TextButton")
     IncreaseSpeedButton.Parent = WindowFrame
-    IncreaseSpeedButton.Size = UDim2.new(0, 50, 0, 30)
-    IncreaseSpeedButton.Position = UDim2.new(0, 0, 0, 30)
+    IncreaseSpeedButton.Size = UDim2.new(0, 50, 0, 25)
+    IncreaseSpeedButton.Position = UDim2.new(0, 35, 0, 70)
     IncreaseSpeedButton.Text = "+"
     IncreaseSpeedButton.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
     IncreaseSpeedButton.TextColor3 = Color3.fromRGB(255, 255, 255)
@@ -104,8 +164,8 @@ local function createGUI()
 
     local DecreaseSpeedButton = Instance.new("TextButton")
     DecreaseSpeedButton.Parent = WindowFrame
-    DecreaseSpeedButton.Size = UDim2.new(0, 50, 0, 30)
-    DecreaseSpeedButton.Position = UDim2.new(0, 0, 0, 60)
+    DecreaseSpeedButton.Size = UDim2.new(0, 50, 0, 25)
+    DecreaseSpeedButton.Position = UDim2.new(0, 90, 0, 70)
     DecreaseSpeedButton.Text = "-"
     DecreaseSpeedButton.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
     DecreaseSpeedButton.TextColor3 = Color3.fromRGB(255, 255, 255)
@@ -183,8 +243,8 @@ local function createGUI()
     -- Fly Button
     local FlyButton = Instance.new("TextButton")
     FlyButton.Parent = WindowFrame
-    FlyButton.Size = UDim2.new(0, 249, 0, 30)
-    FlyButton.Position = UDim2.new(0, 51, 0, 30)
+    FlyButton.Size = UDim2.new(0, 125, 0, 30)
+    FlyButton.Position = UDim2.new(0, 25, 0, 33)
     FlyButton.Text = "Fly Off"
     FlyButton.BackgroundColor3 = Color3.fromRGB(68, 142, 228)
     FlyButton.TextColor3 = Color3.fromRGB(0, 0, 0)
@@ -246,13 +306,13 @@ local function createGUI()
 
 	local noclipButton = Instance.new("TextButton")
 	noclipButton.Parent = WindowFrame
-	noclipButton.Size = UDim2.new(0, 250, 0, 30)
-	noclipButton.Position = UDim2.new(0, 50, 0, 60)
-	noclipButton.Text = "Noclip Off"
-	noclipButton.BackgroundColor3 = Color3.fromRGB(255, 255, 0)
+	noclipButton.Size = UDim2.new(0, 125, 0, 30)
+	noclipButton.Position = UDim2.new(0, 25, 0, 290)
+	noclipButton.Text = "Noclip"
+	noclipButton.BackgroundColor3 = Color3.fromRGB(68, 142, 228)
 	noclipButton.TextColor3 = Color3.fromRGB(0, 0, 0)
 	noclipButton.Font = Enum.Font.SourceSans
-	noclipButton.TextSize = 20
+	noclipButton.TextSize = 18
 
 	noclipButton.MouseButton1Click:Connect(function()
     	if noclipEnabled then
@@ -265,6 +325,32 @@ local function createGUI()
     	noclipEnabled = not noclipEnabled
 	end)
 
+
+    local Players = game:GetService("Players")
+    local RunService = game:GetService("RunService")
+
+    local player = Players.LocalPlayer
+    local camera = workspace.CurrentCamera
+
+    task.spawn(function()
+        while true do
+            local totalTime = 900 -- 15 minutes in seconds
+            local timeLeft = totalTime
+
+            while timeLeft > 0 do
+                task.wait(60) -- wait 60 seconds
+                timeLeft = timeLeft - 60
+                print("Anti-AFK activates in " .. math.ceil(timeLeft / 60) .. " minutes")
+            end
+
+            if camera then
+                local currentCFrame = camera.CFrame
+                camera.CFrame = currentCFrame * CFrame.Angles(0, math.rad(1), 0)
+                task.wait(0.1)
+                camera.CFrame = currentCFrame
+            end
+        end
+    end)
 
 
 	local Players = game:GetService("Players")
@@ -323,7 +409,9 @@ local function createGUI()
 
 		Players.PlayerAdded:Connect(function(player)
 			local conn = player.CharacterAdded:Connect(function()
-				addNametag(player)
+				if nametagsEnabled then
+					addNametag(player)
+				end
 			end)
 			characterConnections[player] = conn
 		end)
@@ -364,24 +452,65 @@ local function createGUI()
 	end)
 
 
-    -- Minimize Button
-    local MinimizeButton = Instance.new("TextButton")
-    MinimizeButton.Parent = WindowFrame
-    MinimizeButton.Size = UDim2.new(0, 30, 0, 30)
-    MinimizeButton.Position = UDim2.new(0, 270, 0, 0)
-    MinimizeButton.Text = "_"
-    MinimizeButton.BackgroundColor3 = Color3.fromRGB(255, 255, 0)
-    MinimizeButton.TextColor3 = Color3.fromRGB(0, 0, 0)
-    MinimizeButton.Font = Enum.Font.SourceSans
-    MinimizeButton.TextSize = 20
+
+
+
+
+	local Players = game:GetService("Players")
+	local player = Players.LocalPlayer
+	local savedPosition = nil
+
+	-- GUI setup (assumes you already have a GUI like WindowFrame)
+	local SetPositionButton = Instance.new("TextButton")
+	SetPositionButton.Size = UDim2.new(0, 120, 0, 30)
+	SetPositionButton.Position = UDim2.new(0, 155, 0, 130)
+	SetPositionButton.BackgroundColor3 = Color3.fromRGB(68, 142, 228)
+	SetPositionButton.Text = "Set Position"
+	SetPositionButton.TextColor3 = Color3.new(0, 0, 0)
+	SetPositionButton.Font = Enum.Font.SourceSans
+	SetPositionButton.TextSize = 18
+	SetPositionButton.Parent = WindowFrame
+
+	local TeleportButton = Instance.new("TextButton")
+	TeleportButton.Size = UDim2.new(0, 120, 0, 30)
+	TeleportButton.Position = UDim2.new(0, 155, 0, 170)
+	TeleportButton.BackgroundColor3 = Color3.fromRGB(68, 142, 228)
+	TeleportButton.Text = "Teleport to Position"
+	TeleportButton.TextColor3 = Color3.new(0, 0, 0)
+	TeleportButton.Font = Enum.Font.SourceSans
+	TeleportButton.TextSize = 18
+	TeleportButton.Parent = WindowFrame
+
+	-- Button logic
+	SetPositionButton.MouseButton1Click:Connect(function()
+		local character = player.Character
+		if character and character:FindFirstChild("HumanoidRootPart") then
+			savedPosition = character.HumanoidRootPart.Position
+			SetPositionButton.Text = "Position Saved!"
+			wait(1)
+			SetPositionButton.Text = "Set Position"
+		end
+	end)
+
+	TeleportButton.MouseButton1Click:Connect(function()
+		local character = player.Character
+		if character and character:FindFirstChild("HumanoidRootPart") and savedPosition then
+			character:MoveTo(savedPosition)
+			TeleportButton.Text = "Teleported!"
+			wait(1)
+			TeleportButton.Text = "Teleport to Position"
+		end
+	end)
+
+
 
     -- Minimize Logic
     local minimizeButton = Instance.new("TextButton")
     minimizeButton.Parent = ScreenGui
     minimizeButton.Size = UDim2.new(0, 100, 0, 30)
-    minimizeButton.Position = UDim2.new(0, 717, 0, -30)  -- Place it at the top-left of the screen
+    minimizeButton.Position = UDim2.new(0, 680, 0, -30)  -- Place it at the top-left of the screen
     minimizeButton.Text = "Admin GUI"
-    minimizeButton.BackgroundColor3 = Color3.fromRGB(0, 255, 0)
+    minimizeButton.BackgroundColor3 = Color3.fromRGB(0, 255, 255)
     minimizeButton.TextColor3 = Color3.fromRGB(0, 0, 0)
     minimizeButton.Font = Enum.Font.SourceSans
     minimizeButton.TextSize = 20
@@ -482,6 +611,18 @@ local function createGUI()
 	CreditsLabel.TextSize = 16
 	CreditsLabel.TextXAlignment = Enum.TextXAlignment.Center
 
+	local AntiLabel = Instance.new("TextLabel")
+	AntiLabel.Parent = WindowFrame
+	AntiLabel.Size = UDim2.new(0, 250, 0, 20)
+	AntiLabel.Position = UDim2.new(0, 25, 0, 330)
+	AntiLabel.Text = "NOTE: Anti AFK Built Into the Script"
+	AntiLabel.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+	AntiLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+	AntiLabel.Font = Enum.Font.SourceSans
+	AntiLabel.TextSize = 16
+	AntiLabel.TextXAlignment = Enum.TextXAlignment.Center
+
+
 	local KillButton = Instance.new("TextButton")
 	KillButton.Parent = WindowFrame
 	KillButton.Size = UDim2.new(0, 30, 0, 30)
@@ -496,8 +637,12 @@ local function createGUI()
     	ScreenGui:Destroy()
 	end)
 
+	KillButton.MouseButton1Click:Connect(function()
+		ScreenGui1:Destroy()
+	end)
 
-local UserInputService = game:GetService("UserInputService")
+
+	local UserInputService = game:GetService("UserInputService")
     local Players = game:GetService("Players")
     local LocalPlayer = Players.LocalPlayer
 
@@ -547,6 +692,9 @@ local UserInputService = game:GetService("UserInputService")
     end)
 
 
+	
+
+
     -- Draggable GUI Code
     local dragging = false
     local dragInput, mousePos, framePos
@@ -573,7 +721,89 @@ local UserInputService = game:GetService("UserInputService")
         end
     end)
 
-    -- Additional buttons like noclip, kill, etc., can be added here
+
+
+	local UICorner2 = Instance.new("UICorner")
+	UICorner2.CornerRadius = UDim.new(0, 12) -- You can change 12 to any value you want for more or less rounding
+	UICorner2.Parent = CreditsLabel
+
+	local UICorner3 = Instance.new("UICorner")
+	UICorner3.CornerRadius = UDim.new(0, 12) -- You can change 12 to any value you want for more or less rounding
+	UICorner3.Parent = KillButton
+
+	local UICorner4 = Instance.new("UICorner")
+	UICorner4.CornerRadius = UDim.new(0, 6) -- You can change 12 to any value you want for more or less rounding
+	UICorner4.Parent = InfiniteJumpButton
+
+	local UICorner5 = Instance.new("UICorner")
+	UICorner5.CornerRadius = UDim.new(0, 6) -- You can change 12 to any value you want for more or less rounding
+	UICorner5.Parent = SliderFrame
+
+	local UICorner6 = Instance.new("UICorner")
+	UICorner6.CornerRadius = UDim.new(0, 6) -- You can change 12 to any value you want for more or less rounding
+	UICorner6.Parent = minimizeButton
+
+	local UICorner7 = Instance.new("UICorner")
+	UICorner7.CornerRadius = UDim.new(0, 6) -- You can change 12 to any value you want for more or less rounding
+	UICorner7.Parent = NametagButton
+
+	local UICorner8 = Instance.new("UICorner")
+	UICorner8.CornerRadius = UDim.new(0, 6) -- You can change 12 to any value you want for more or less rounding
+	UICorner8.Parent = serverHopButton
+
+	local UICorner9 = Instance.new("UICorner")
+	UICorner9.CornerRadius = UDim.new(0, 6) -- You can change 12 to any value you want for more or less rounding
+	UICorner9.Parent = rejoinButton	
+
+	local UICorner10 = Instance.new("UICorner")
+	UICorner10.CornerRadius = UDim.new(0, 12) -- You can change 12 to any value you want for more or less rounding
+	UICorner10.Parent = UItop
+
+	local UICorner11 = Instance.new("UICorner")
+	UICorner11.CornerRadius = UDim.new(0, 6) -- You can change 12 to any value you want for more or less rounding
+	UICorner11.Parent = resetButton
+
+	local UICorner12 = Instance.new("UICorner")
+	UICorner12.CornerRadius = UDim.new(0, 6) -- You can change 12 to any value you want for more or less rounding
+	UICorner12.Parent = executeButton
+
+	local UICorner14 = Instance.new("UICorner")
+	UICorner14.CornerRadius = UDim.new(0, 6) -- You can change 12 to any value you want for more or less rounding
+	UICorner14.Parent = vcunban
+
+	local UICorner15 = Instance.new("UICorner")
+	UICorner15.CornerRadius = UDim.new(0, 6) -- You can change 12 to any value you want for more or less rounding
+	UICorner15.Parent = SpeedLabel
+
+	local UICorner16 = Instance.new("UICorner")
+	UICorner16.CornerRadius = UDim.new(0, 6) -- You can change 12 to any value you want for more or less rounding
+	UICorner16.Parent = IncreaseSpeedButton
+
+	local UICorner17 = Instance.new("UICorner")
+	UICorner17.CornerRadius = UDim.new(0, 6) -- You can change 12 to any value you want for more or less rounding
+	UICorner17.Parent = DecreaseSpeedButton
+
+	local UICorner18 = Instance.new("UICorner")
+	UICorner18.CornerRadius = UDim.new(0, 6) -- You can change 12 to any value you want for more or less rounding
+	UICorner18.Parent = FlyButton
+
+	local UICorner19 = Instance.new("UICorner")
+	UICorner19.CornerRadius = UDim.new(0, 6) -- You can change 12 to any value you want for more or less rounding
+	UICorner19.Parent = noclipButton
+
+	local UICorner20 = Instance.new("UICorner")
+	UICorner20.CornerRadius = UDim.new(0, 6) -- You can change 12 to any value you want for more or less rounding
+	UICorner20.Parent = TeleportButton
+
+	local UICorner21 = Instance.new("UICorner")
+	UICorner21.CornerRadius = UDim.new(0, 6) -- You can change 12 to any value you want for more or less rounding
+	UICorner21.Parent = SetPositionButton
+
+	local gradient2 = Instance.new("UIGradient")
+	gradient2.Parent = minimizeButton
+	gradient2.Color = ColorSequence.new(Color3.fromRGB(0, 0, 255), Color3.fromRGB(255, 255, 0))
+	gradient2.Rotation = 0
+
 
     -- Input for flying controls
     IYMouse.KeyDown:Connect(function(KEY)
@@ -593,3 +823,547 @@ end
 
 -- Call the function to create the GUI
 createGUI()
+
+local function createGUI1()
+
+	if player.PlayerGui:FindFirstChild("SkibidiSigma2") then
+        player.PlayerGui.SkibidiSigma2:Destroy()
+    end
+
+    -- Create new GUI
+    local ScreenGui2 = Instance.new("ScreenGui")
+    ScreenGui2.Name = "SkibidiSigma2"  -- Ensure it has a name for easier detection
+    ScreenGui2.Parent = player.PlayerGui
+    ScreenGui2.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+
+    local WindowFrame2 = Instance.new("Frame")
+    WindowFrame2.Parent = ScreenGui2
+    WindowFrame2.Size = UDim2.new(0, 300, 0, 500)
+    WindowFrame2.Position = UDim2.new(0, 50, 0, 50)
+    WindowFrame2.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+    WindowFrame2.BorderSizePixel = 2
+    WindowFrame2.BorderColor3 = Color3.fromRGB(0, 0, 0)
+	WindowFrame2.Visible = false
+
+	local UICorner99 = Instance.new("UICorner")
+	UICorner99.CornerRadius = UDim.new(0, 12) -- You can change 12 to any value you want for more or less rounding
+	UICorner99.Parent = WindowFrame2
+
+
+
+
+    local gradient99 = Instance.new("UIGradient")
+    gradient99.Parent = WindowFrame2
+    gradient99.Rotation = -5 -- We'll animate this later
+
+    -- Stronger color blending
+    gradient99.Color = ColorSequence.new({
+        ColorSequenceKeypoint.new(0, Color3.fromRGB(0, 0, 255)),    -- Blue at start
+        ColorSequenceKeypoint.new(0.25, Color3.fromRGB(0, 255, 255)), -- Cyan
+        ColorSequenceKeypoint.new(0.5, Color3.fromRGB(0, 255, 0)),   -- Green
+        ColorSequenceKeypoint.new(0.75, Color3.fromRGB(255, 255, 0)), -- Yellow
+        ColorSequenceKeypoint.new(1, Color3.fromRGB(255, 0, 0))     -- Red at end
+    })
+
+    -- Create a loop to animate the Rotation
+    task.spawn(function()
+        while true do
+            for rotation = 0, 360, 1 do
+                gradient99.Rotation = rotation
+                task.wait(0.01) -- Speed of rotation (lower = faster)
+            end
+        end
+    end)
+
+
+    local UItop99 = Instance.new("TextLabel")
+    UItop99.Parent = WindowFrame2
+    UItop99.Size = UDim2.new(0, 300, 0, 30)
+    UItop99.Position = UDim2.new(0, 0, 0, 0)
+    UItop99.Text = "Random stuff"
+    UItop99.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+    UItop99.TextColor3 = Color3.fromRGB(255, 255, 255)
+    UItop99.Font = Enum.Font.SourceSans
+    UItop99.TextSize = 20
+    UItop99.TextXAlignment = Enum.TextXAlignment.Center
+
+    local minimizeButton1 = Instance.new("TextButton")
+    minimizeButton1.Parent = ScreenGui2
+    minimizeButton1.Size = UDim2.new(0, 100, 0, 30)
+    minimizeButton1.Position = UDim2.new(0, 790, 0, -30)  -- Place it at the top-left of the screen
+    minimizeButton1.Text = "People Things"
+    minimizeButton1.BackgroundColor3 = Color3.fromRGB(0, 255, 255)
+    minimizeButton1.TextColor3 = Color3.fromRGB(0, 0, 0)
+    minimizeButton1.Font = Enum.Font.SourceSans
+    minimizeButton1.TextSize = 20
+
+	minimizeButton1.MouseButton1Click:Connect(function()
+    	if WindowFrame2.Visible then
+        	WindowFrame2.Visible = false  -- Hide the window
+    	else
+        	WindowFrame2.Visible = true  -- Show the window again
+    	end
+	end)
+	
+
+	local KillButton = Instance.new("TextButton")
+	KillButton.Parent = WindowFrame2
+	KillButton.Size = UDim2.new(0, 30, 0, 30)
+	KillButton.Position = UDim2.new(0, 270, 0, 0)
+	KillButton.Text = "X"
+	KillButton.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+	KillButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+	KillButton.Font = Enum.Font.SourceSans
+	KillButton.TextSize = 20
+
+	KillButton.MouseButton1Click:Connect(function()
+		ScreenGui2:Destroy()
+	end)
+
+	local UICorner56 = Instance.new("UICorner")
+	UICorner56.CornerRadius = UDim.new(0, 6) -- You can change 12 to any value you want for more or less rounding
+	UICorner56.Parent = minimizeButton1
+
+	local UICorner57 = Instance.new("UICorner")
+	UICorner57.CornerRadius = UDim.new(0, 6) -- You can change 12 to any value you want for more or less rounding
+	UICorner57.Parent = KillButton
+
+	local UICorner58 = Instance.new("UICorner")
+	UICorner58.CornerRadius = UDim.new(0, 6) -- You can change 12 to any value you want for more or less rounding
+	UICorner58.Parent = UItop99
+
+	local gradient20 = Instance.new("UIGradient")
+	gradient20.Parent = minimizeButton1
+	gradient20.Color = ColorSequence.new(Color3.fromRGB(0, 255, 0), Color3.fromRGB(0, 255, 255))
+	gradient20.Rotation = 0
+
+
+		local UsernameBox = Instance.new("TextBox")
+		UsernameBox.Parent = WindowFrame2
+		UsernameBox.Size = UDim2.new(0, 125, 0, 30)
+		UsernameBox.Position = UDim2.new(0, 25, 0, 35)
+		UsernameBox.PlaceholderText = "Username..."
+		UsernameBox.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+		UsernameBox.TextColor3 = Color3.fromRGB(255, 255, 255)
+		UsernameBox.Font = Enum.Font.SourceSans
+		UsernameBox.TextSize = 16
+
+		local PiggybackButton = Instance.new("TextButton")
+		PiggybackButton.Parent = WindowFrame2
+		PiggybackButton.Size = UDim2.new(0, 50, 0, 30)
+		PiggybackButton.Position = UDim2.new(0, 25, 0, 70)
+		PiggybackButton.Text = ""
+		PiggybackButton.BackgroundColor3 = Color3.fromRGB(0, 80, 0)
+		PiggybackButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+		PiggybackButton.Font = Enum.Font.SourceSans
+		PiggybackButton.TextSize = 16
+
+		local DetachButton = Instance.new("TextButton")
+		DetachButton.Parent = WindowFrame2
+		DetachButton.Size = UDim2.new(0, 50, 0, 30)
+		DetachButton.Position = UDim2.new(0, 100, 0, 70)
+		DetachButton.Text = ""
+		DetachButton.BackgroundColor3 = Color3.fromRGB(120, 50, 50)
+		DetachButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+		DetachButton.Font = Enum.Font.SourceSans
+		DetachButton.TextSize = 16
+
+		-- UTILITIES
+		local Players = game:GetService("Players")
+		local Player = Players.LocalPlayer
+
+		local function GetPlayerFromNameSnippet(snippet)
+			snippet = snippet:lower()
+			for _, plr in ipairs(Players:GetPlayers()) do
+				if plr ~= Player then
+					if plr.Name:lower():sub(1, #snippet) == snippet or plr.DisplayName:lower():sub(1, #snippet) == snippet then
+						return plr
+					end
+				end
+			end
+		end
+
+		local function GetCharacter(plr)
+			return plr.Character or plr.CharacterAdded:Wait()
+		end
+
+		local function GetRoot(plr)
+			local char = GetCharacter(plr)
+			return char:WaitForChild("HumanoidRootPart")
+		end
+
+		local function GetHumanoid(plr)
+			local char = GetCharacter(plr)
+			return char:WaitForChild("Humanoid")
+		end
+
+		-- ATTACH FUNCTION
+		local function AttachToPlayer(TargetUsername, AttachPart)
+			if #TargetUsername < 1 then return end
+			local Target = GetPlayerFromNameSnippet(TargetUsername)
+			if not Target then return end
+
+			local Part, AttachmentOffset
+
+			if AttachPart == "Back" then
+				Part = "HumanoidRootPart"
+				AttachmentOffset = CFrame.new(0, 0, 1.25) * CFrame.Angles(0, -3, 0)
+			elseif AttachPart == "Head" then
+				Part = "Head"
+				AttachmentOffset = CFrame.new(0, 0, 0.8)
+			elseif AttachPart == "Front" then
+				Part = "HumanoidRootPart"
+				AttachmentOffset = CFrame.new(0, 0, -1.25)
+			end
+
+			local StopAttach = Player:FindFirstChild("StopAttach")
+			if StopAttach then
+				StopAttach:Destroy()
+			end
+
+			repeat
+				pcall(function()
+					local TargetCharacter = GetCharacter(Target)
+					local Root = GetRoot(Player)
+					Root.CFrame = TargetCharacter:FindFirstChild(Part).CFrame * AttachmentOffset
+					Root.Velocity = Vector3.zero
+					local Humanoid = GetHumanoid(Player)
+					if not Humanoid.Sit then
+						Humanoid.Sit = false
+						task.wait(0.05)
+						Humanoid.Sit = true
+					end
+				end)
+				task.wait()
+			until Player:FindFirstChild("StopAttach")
+		end
+
+		-- BUTTON HANDLERS
+		PiggybackButton.MouseButton1Click:Connect(function()
+			local username = UsernameBox.Text
+			if username and username ~= "" then
+				AttachToPlayer(username, "Head")
+			end
+		end)
+
+		DetachButton.MouseButton1Click:Connect(function()
+			local stopAttach = Instance.new("StringValue")
+			stopAttach.Name = "StopAttach"
+			stopAttach.Parent = Player
+		end)
+
+		local UsernameBox2 = Instance.new("TextBox")
+		UsernameBox2.Parent = WindowFrame2
+		UsernameBox2.Size = UDim2.new(0, 125, 0, 30)
+		UsernameBox2.Position = UDim2.new(0, 25, 0, 140)
+		UsernameBox2.PlaceholderText = "Username..."
+		UsernameBox2.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+		UsernameBox2.TextColor3 = Color3.fromRGB(255, 255, 255)
+		UsernameBox2.Font = Enum.Font.SourceSans
+		UsernameBox2.TextSize = 16
+
+		local PiggybackButton2 = Instance.new("TextButton")
+		PiggybackButton2.Parent = WindowFrame2
+		PiggybackButton2.Size = UDim2.new(0, 50, 0, 30)
+		PiggybackButton2.Position = UDim2.new(0, 25, 0, 180)
+		PiggybackButton2.Text = ""
+		PiggybackButton2.BackgroundColor3 = Color3.fromRGB(0, 80, 0)
+		PiggybackButton2.TextColor3 = Color3.fromRGB(255, 255, 255)
+		PiggybackButton2.Font = Enum.Font.SourceSans
+		PiggybackButton2.TextSize = 16
+
+		local DetachButton2 = Instance.new("TextButton")
+		DetachButton2.Parent = WindowFrame2
+		DetachButton2.Size = UDim2.new(0, 50, 0, 30)
+		DetachButton2.Position = UDim2.new(0, 100, 0, 180)
+		DetachButton2.Text = ""
+		DetachButton2.BackgroundColor3 = Color3.fromRGB(120, 50, 50)
+		DetachButton2.TextColor3 = Color3.fromRGB(255, 255, 255)
+		DetachButton2.Font = Enum.Font.SourceSans
+		DetachButton2.TextSize = 16
+
+		-- UTILITIES
+		local Players = game:GetService("Players")
+		local Player = Players.LocalPlayer
+
+		local function GetPlayerFromNameSnippet(snippet)
+			snippet = snippet:lower()
+			for _, plr in ipairs(Players:GetPlayers()) do
+				if plr ~= Player then
+					if plr.Name:lower():sub(1, #snippet) == snippet or plr.DisplayName:lower():sub(1, #snippet) == snippet then
+						return plr
+					end
+				end
+			end
+		end
+
+		local function GetCharacter(plr)
+			return plr.Character or plr.CharacterAdded:Wait()
+		end
+
+		local function GetRoot(plr)
+			local char = GetCharacter(plr)
+			return char:WaitForChild("HumanoidRootPart")
+		end
+
+		local function GetHumanoid(plr)
+			local char = GetCharacter(plr)
+			return char:WaitForChild("Humanoid")
+		end
+
+		-- ATTACH FUNCTION
+		local function AttachToPlayer2(TargetUsername, AttachPart)
+			if #TargetUsername < 1 then return end
+			local Target = GetPlayerFromNameSnippet(TargetUsername)
+			if not Target then return end
+
+			local Part, AttachmentOffset
+
+			if AttachPart == "Back" then
+				Part = "HumanoidRootPart"
+				AttachmentOffset = CFrame.new(0, 0, 1.25) * CFrame.Angles(0, -3, 0)
+			elseif AttachPart == "Head" then
+				Part = "Head"
+				AttachmentOffset = CFrame.new(0, 0, 0.8)
+			elseif AttachPart == "Front" then
+				Part = "HumanoidRootPart"
+				AttachmentOffset = CFrame.new(0, 0, -0.7) * CFrame.Angles(0, -3, 0)
+			end
+
+			local StopAttach = Player:FindFirstChild("StopAttach")
+			if StopAttach then
+				StopAttach:Destroy()
+			end
+
+			repeat
+				pcall(function()
+					local TargetCharacter = GetCharacter(Target)
+					local Root = GetRoot(Player)
+					Root.CFrame = TargetCharacter:FindFirstChild(Part).CFrame * AttachmentOffset
+					Root.Velocity = Vector3.zero
+					local Humanoid = GetHumanoid(Player)
+					if not Humanoid.Sit then
+						Humanoid.Sit = false
+						task.wait(0.05)
+						Humanoid.Sit = true
+					end
+				end)
+				task.wait()
+			until Player:FindFirstChild("StopAttach")
+		end
+
+		-- BUTTON HANDLERS
+		PiggybackButton2.MouseButton1Click:Connect(function()
+			local username2 = UsernameBox2.Text
+			if username2 and username2 ~= "" then
+				AttachToPlayer2(username2, "Front")
+			end
+		end)
+
+		DetachButton2.MouseButton1Click:Connect(function()
+			local stopAttach = Instance.new("StringValue")
+			stopAttach.Name = "StopAttach"
+			stopAttach.Parent = Player
+		end)
+
+		local UsernameBox3 = Instance.new("TextBox")
+		UsernameBox3.Parent = WindowFrame2
+		UsernameBox3.Size = UDim2.new(0, 125, 0, 30)
+		UsernameBox3.Position = UDim2.new(0, 25, 0, 220)
+		UsernameBox3.PlaceholderText = "Username..."
+		UsernameBox3.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+		UsernameBox3.TextColor3 = Color3.fromRGB(255, 255, 255)
+		UsernameBox3.Font = Enum.Font.SourceSans
+		UsernameBox3.TextSize = 16
+
+		local PiggybackButton3 = Instance.new("TextButton")
+		PiggybackButton3.Parent = WindowFrame2
+		PiggybackButton3.Size = UDim2.new(0, 50, 0, 30)
+		PiggybackButton3.Position = UDim2.new(0, 25, 0, 260)
+		PiggybackButton3.Text = ""
+		PiggybackButton3.BackgroundColor3 = Color3.fromRGB(0, 80, 0)
+		PiggybackButton3.TextColor3 = Color3.fromRGB(255, 255, 255)
+		PiggybackButton3.Font = Enum.Font.SourceSans
+		PiggybackButton3.TextSize = 16
+
+		local DetachButton3 = Instance.new("TextButton")
+		DetachButton3.Parent = WindowFrame2
+		DetachButton3.Size = UDim2.new(0, 50, 0, 30)
+		DetachButton3.Position = UDim2.new(0, 100, 0, 260)
+		DetachButton3.Text = ""
+		DetachButton3.BackgroundColor3 = Color3.fromRGB(120, 50, 50)
+		DetachButton3.TextColor3 = Color3.fromRGB(255, 255, 255)
+		DetachButton3.Font = Enum.Font.SourceSans
+		DetachButton3.TextSize = 16
+
+		-- UTILITIES
+		local Players = game:GetService("Players")
+		local Player = Players.LocalPlayer
+
+		local function GetPlayerFromNameSnippet(snippet)
+			snippet = snippet:lower()
+			for _, plr in ipairs(Players:GetPlayers()) do
+				if plr ~= Player then
+					if plr.Name:lower():sub(1, #snippet) == snippet or plr.DisplayName:lower():sub(1, #snippet) == snippet then
+						return plr
+					end
+				end
+			end
+		end
+
+		local function GetCharacter(plr)
+			return plr.Character or plr.CharacterAdded:Wait()
+		end
+
+		local function GetRoot(plr)
+			local char = GetCharacter(plr)
+			return char:WaitForChild("HumanoidRootPart")
+		end
+
+		local function GetHumanoid(plr)
+			local char = GetCharacter(plr)
+			return char:WaitForChild("Humanoid")
+		end
+
+		-- ATTACH FUNCTION
+		local function AttachToPlayer3(TargetUsername, AttachPart)
+			if #TargetUsername < 1 then return end
+			local Target = GetPlayerFromNameSnippet(TargetUsername)
+			if not Target then return end
+
+			local Part, AttachmentOffset
+
+			if AttachPart == "Back" then
+				Part = "HumanoidRootPart"
+				AttachmentOffset = CFrame.new(0, 0, 1.25) * CFrame.Angles(0, -3, 0)
+			elseif AttachPart == "Head" then
+				Part = "Head"
+				AttachmentOffset = CFrame.new(0, 0, 0.8)
+			elseif AttachPart == "Front" then
+				Part = "HumanoidRootPart"
+				AttachmentOffset = CFrame.new(0, 0, -0.7) * CFrame.Angles(0, -3, 0)
+			end
+
+			local StopAttach = Player:FindFirstChild("StopAttach")
+			if StopAttach then
+				StopAttach:Destroy()
+			end
+
+			repeat
+				pcall(function()
+					local TargetCharacter = GetCharacter(Target)
+					local Root = GetRoot(Player)
+					Root.CFrame = TargetCharacter:FindFirstChild(Part).CFrame * AttachmentOffset
+					Root.Velocity = Vector3.zero
+					local Humanoid = GetHumanoid(Player)
+					if not Humanoid.Sit then
+						Humanoid.Sit = false
+						task.wait(0.05)
+						Humanoid.Sit = true
+					end
+				end)
+				task.wait()
+			until Player:FindFirstChild("StopAttach")
+		end
+
+		-- BUTTON HANDLERS
+		PiggybackButton3.MouseButton1Click:Connect(function()
+			local username3 = UsernameBox3.Text
+			if username3 and username3 ~= "" then
+				AttachToPlayer3(username3, "Back")
+			end
+		end)
+
+		DetachButton3.MouseButton1Click:Connect(function()
+			local stopAttach = Instance.new("StringValue")
+			stopAttach.Name = "StopAttach"
+			stopAttach.Parent = Player
+		end)
+
+
+		local flingButton = Instance.new("TextButton")
+		flingButton.Parent = WindowFrame2
+		flingButton.Size = UDim2.new(0, 200, 0, 30)
+		flingButton.Position = UDim2.new(0, 0, 0, 590)
+		flingButton.Text = "FLING!"
+		flingButton.BackgroundColor3 = Color3.fromRGB(255, 100, 0)
+		flingButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+		flingButton.Font = Enum.Font.SourceSansBold
+		flingButton.TextSize = 18
+
+		local UICornerFling = Instance.new("UICorner")
+		UICornerFling.CornerRadius = UDim.new(0, 8)
+		UICornerFling.Parent = flingButton
+
+		local Players = game:GetService("Players")
+		local LocalPlayer = Players.LocalPlayer
+
+		flingButton.MouseButton1Click:Connect(function()
+			local character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+			local hrp = character:FindFirstChild("HumanoidRootPart")
+			if not hrp then return end
+
+			-- Save original position
+			local originalPosition = hrp.Position
+
+			-- Lock in place
+			local bp = Instance.new("BodyPosition")
+			bp.Position = hrp.Position
+			bp.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
+			bp.P = 100000
+			bp.D = 1000
+			bp.Name = "LockPosition"
+			bp.Parent = hrp
+
+			-- Spin fast
+			local bav = Instance.new("BodyAngularVelocity")
+			bav.AngularVelocity = Vector3.new(0, 99999, 0)
+			bav.MaxTorque = Vector3.new(0, math.huge, 0)
+			bav.P = 125000
+			bav.Name = "SpinFling"
+			bav.Parent = hrp
+
+			-- Fling duration
+			task.delay(3, function()
+				if bav then bav:Destroy() end
+				if bp then bp:Destroy() end
+				task.wait(1) -- Wait to let forces settle
+
+				-- Return to original position
+				hrp.CFrame = CFrame.new(originalPosition)
+				hrp.Velocity = Vector3.zero
+			end)
+		end)
+
+
+
+	local dragging = false
+    local dragInput, mousePos, framePos
+
+    WindowFrame2.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+            dragging = true
+            dragInput = input
+            mousePos = input.Position
+            framePos = WindowFrame2.Position
+        end
+    end)
+
+    WindowFrame2.InputEnded:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+            dragging = false
+        end
+    end)
+
+    game:GetService("UserInputService").InputChanged:Connect(function(input)
+        if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+            local delta = input.Position - mousePos
+            WindowFrame2.Position = UDim2.new(framePos.X.Scale, framePos.X.Offset + delta.X, framePos.Y.Scale, framePos.Y.Offset + delta.Y)
+        end
+    end)
+
+
+
+
+	end
+createGUI1()
